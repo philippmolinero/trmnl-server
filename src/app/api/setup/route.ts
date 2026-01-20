@@ -1,32 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 
+function buildSetupResponse(request: NextRequest) {
+  const baseUrl = getBaseUrl(request);
+  return {
+    status: 200,
+    api_key: "trmnl-byos-api-key",
+    friendly_id: "BYOS01",
+    image_url: `${baseUrl}/api/image`,
+    filename: "setup-complete",
+  };
+}
+
+// GET /api/setup - Some firmware versions use GET
+export async function GET(request: NextRequest) {
+  console.log("Setup GET request received");
+  return NextResponse.json(buildSetupResponse(request));
+}
+
 // POST /api/setup - Device registration
-// Called when the TRMNL device first connects
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    console.log("Device setup request:", body);
-
-    const baseUrl = getBaseUrl(request);
-
-    // Return response in the exact format TRMNL firmware expects
-    return NextResponse.json({
-      status: 200,
-      api_key: "trmnl-byos-api-key",
-      friendly_id: "BYOS01",
-      image_url: `${baseUrl}/api/image`,
-      filename: "setup-complete",
-    });
-  } catch (error) {
-    console.error("Setup error:", error);
-    return NextResponse.json({
-      status: 404,
-      api_key: null,
-      friendly_id: null,
-      image_url: null,
-      filename: null,
-    });
+    const body = await request.json().catch(() => ({}));
+    console.log("Setup POST request:", body);
+  } catch {
+    // Body parsing failed, continue anyway
   }
+
+  return NextResponse.json(buildSetupResponse(request));
 }
 
 function getBaseUrl(request: NextRequest): string {
