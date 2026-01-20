@@ -4,11 +4,16 @@ import { NextRequest, NextResponse } from "next/server";
 // The TRMNL device calls this endpoint periodically to get the next image
 export async function GET(request: NextRequest) {
   const baseUrl = getBaseUrl(request);
+  const filename = new Date().toISOString();
 
-  // Return dynamically generated image
+  // Return response in the exact format TRMNL firmware expects
   return NextResponse.json({
+    status: 0,
     image_url: `${baseUrl}/api/image`,
-    refresh_rate: 900, // 15 minutes in seconds
+    filename: filename,
+    update_firmware: false,
+    firmware_url: null,
+    refresh_rate: "900", // Must be a string
     reset_firmware: false,
   });
 }
@@ -23,16 +28,20 @@ export async function POST(request: NextRequest) {
   }
 
   const baseUrl = getBaseUrl(request);
+  const filename = new Date().toISOString();
 
   return NextResponse.json({
+    status: 0,
     image_url: `${baseUrl}/api/image`,
-    refresh_rate: 900,
+    filename: filename,
+    update_firmware: false,
+    firmware_url: null,
+    refresh_rate: "900",
     reset_firmware: false,
   });
 }
 
 function getBaseUrl(request: NextRequest): string {
-  // Check for forwarded headers (when behind proxy/Vercel)
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProto = request.headers.get("x-forwarded-proto");
 
